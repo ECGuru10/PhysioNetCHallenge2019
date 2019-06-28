@@ -3,7 +3,7 @@ clc;clear all;close all force;
 global YTest vys
 
 
-addpath('../../train_test_data');
+addpath('../../train_test_data_2');
 
 
 load('data.mat');
