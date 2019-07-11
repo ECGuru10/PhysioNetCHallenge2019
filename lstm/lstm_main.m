@@ -55,7 +55,9 @@ numHiddenUnits = 20;
 layers = [ ...
     sequenceInputLayer(featureDimension)
     lstmLayer(numHiddenUnits,'OutputMode','sequence')
+%     LayerNorm()
     lstmLayer(numHiddenUnits,'OutputMode','sequence')
+%     LayerNorm()
     fullyConnectedLayer(100)
     reluLayer
     dropoutLayer(0.5)
