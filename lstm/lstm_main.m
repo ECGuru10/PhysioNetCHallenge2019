@@ -51,23 +51,61 @@ numResponses = 2;
 featureDimension = size(XTrain{1},1);
 
  
-numHiddenUnits = 20;
-layers = [ ...
-    sequenceInputLayer(featureDimension)
-    lstmLayer(numHiddenUnits,'OutputMode','sequence')
-%     LayerNorm()
-    lstmLayer(numHiddenUnits,'OutputMode','sequence')
-%     LayerNorm()
-    fullyConnectedLayer(100)
-    reluLayer
-    dropoutLayer(0.5)
-    fullyConnectedLayer(50)
-    reluLayer
-    dropoutLayer(0.5)
-    fullyConnectedLayer(100)
-    fullyConnectedLayer(numResponses)
-    softmaxLayer
+numHiddenUnits = 300;
+numFc1=200;
+numFc2=50;
+blocks=10;
+layers = [sequenceInputLayer(featureDimension,'Name','input')];
+for k=1:blocks
+    layers = [...
+        layers
+        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '0'])
+        lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['lstm' num2str(k)])
+        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '1'])
+        reluLayer('Name',['r' num2str(k) '1'])
+        dropoutLayer(0.5,'Name',['do' num2str(k) '1'])
+        fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
+        reluLayer('Name',['r' num2str(k) '2'])
+        dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
+        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
+        concatenationLayer(1,2,'Name',['cat' num2str(k) ''])];
+    
+end
+layers = [...
+    layers
+    fullyConnectedLayer(numFc1,'Name','fc1_final')
+    reluLayer('Name','r1_final')
+    dropoutLayer(0.5,'Name','do1_final')
+    fullyConnectedLayer(numFc2,'Name','fc2_final')
+    reluLayer('Name','r2_final')
+    dropoutLayer(0.5,'Name','do2_final')
+    fullyConnectedLayer(numFc1,'Name','fc3_final')
+    
+    fullyConnectedLayer(numFc1,'Name','fc1_final2')
+    reluLayer('Name','r1_final2')
+    dropoutLayer(0.5,'Name','do1_final2')
+    fullyConnectedLayer(numFc2,'Name','fc2_final2')
+    reluLayer('Name','r2_final2')
+    dropoutLayer(0.5,'Name','do2_fina2')
+    fullyConnectedLayer(numFc1,'Name','fc3_final2')
+    
+    fullyConnectedLayer(numFc1,'Name','fc1_final3')
+    reluLayer('Name','r1_final3')
+    dropoutLayer(0.5,'Name','do1_final3')
+    fullyConnectedLayer(numFc2,'Name','fc2_final3')
+    reluLayer('Name','r2_final3')
+    dropoutLayer(0.5,'Name','do2_fina3')
+    fullyConnectedLayer(numFc1,'Name','fc3_final3')
+    
+    fullyConnectedLayer(numResponses,'Name','fcfinal_final')
+    softmaxLayer('Name','sm')
     diceClassificationLayer('out')];
+
+layers=layerGraph(layers);
+layers=connectLayers(layers,'input','cat1/in2');
+for k=1:blocks-1
+    layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
+end
 
 
 save_name=['cpt'];
