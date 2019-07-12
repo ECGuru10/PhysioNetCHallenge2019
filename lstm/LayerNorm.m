@@ -16,12 +16,12 @@ classdef LayerNorm < nnet.layer.Layer
     end
     
     methods
-        function layer = LayerNorm()
+        function layer = LayerNorm(name)
             % (Optional) Create a myLayer.
             % This function must have the same name as the layer.
 
             % Layer constructor function goes here.
-            layer.Name = "LayerNorm";
+            layer.Name = name;
 
             % Set layer description.
             layer.Description = "LayerNorm";

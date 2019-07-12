@@ -61,6 +61,7 @@ for k=1:blocks
         layers
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '0'])
         lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['lstm' num2str(k)])
+        LayerNorm(['ln' num2str(k)])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '1'])
         reluLayer('Name',['r' num2str(k) '1'])
         dropoutLayer(0.5,'Name',['do' num2str(k) '1'])
