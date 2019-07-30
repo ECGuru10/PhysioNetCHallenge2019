@@ -53,8 +53,8 @@ featureDimension = size(XTrain{1},1);
  
 numHiddenUnits = 300;
 numFc1=200;
-numFc2=50;
-blocks=10;
+numFc2=100;
+blocks=12;
 layers = [sequenceInputLayer(featureDimension,'Name','input')];
 for k=1:blocks
     layers = [...
@@ -69,7 +69,7 @@ for k=1:blocks
         reluLayer('Name',['r' num2str(k) '2'])
         dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
-        concatenationLayer(1,2,'Name',['cat' num2str(k) ''])];
+        concatenationLayer(1,3,'Name',['cat' num2str(k) ''])];
     
 end
 layers = [...
@@ -104,8 +104,10 @@ layers = [...
 
 layers=layerGraph(layers);
 layers=connectLayers(layers,'input','cat1/in2');
+layers=connectLayers(layers,'input','cat1/in3');
 for k=1:blocks-1
     layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
+    layers=connectLayers(layers,'input',['cat' num2str(k+1) '/in3']);
 end
 
 
@@ -122,7 +124,7 @@ options = trainingOptions('adam', ...
     'SquaredGradientDecayFactor',0.999,...
     'Epsilon',1e-8,...
     'LearnRateSchedule','piecewise', ...
-    'LearnRateDropPeriod',15, ...
+    'LearnRateDropPeriod',10, ...
     'LearnRateDropFactor',0.1, ...
     'ValidationData',{XTest,YTest_c}, ...
     'ValidationFrequency',1000,...
