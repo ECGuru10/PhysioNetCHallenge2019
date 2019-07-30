@@ -142,7 +142,7 @@ options = trainingOptions('adam', ...
 
 net = trainNetwork(XTrain,YTrain_c,layers,options);
 
-% save(['model.mat'],'net')
+save(['model.mat'],'net')
 load(['model.mat'])
 
 
@@ -172,10 +172,10 @@ x = ga(@(x) pred(x,YTest,vys),1,A,b,Aeq,beq,lb,ub,nonlcon,optimoptions('ga','Dis
 normalized_observed_utility=-pred(x,YTest,vys)
 
 
-% save('x.mat','x')
+save('x.mat','x')
 
 
-% save('minv_maxv.mat','minv','maxv')
+save('minv_maxv.mat','minv','maxv')
 
 
 
