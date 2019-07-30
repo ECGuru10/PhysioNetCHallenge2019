@@ -50,7 +50,8 @@ YTest_c=cellfun(@(x) categorical(x) ,YTest,'UniformOutput',false);
 numResponses = 2;
 featureDimension = size(XTrain{1},1);
 
- 
+% LayerNorm(['ln' num2str(k)])
+
 numHiddenUnits = 300;
 numFc1=200;
 numFc2=100;
@@ -61,7 +62,6 @@ for k=1:blocks
         layers
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '0'])
         lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['lstm' num2str(k)])
-        LayerNorm(['ln' num2str(k)])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '1'])
         reluLayer('Name',['r' num2str(k) '1'])
         dropoutLayer(0.5,'Name',['do' num2str(k) '1'])
@@ -142,8 +142,8 @@ options = trainingOptions('adam', ...
 
 net = trainNetwork(XTrain,YTrain_c,layers,options);
 
-save(['model.mat'],'net')
-load(['model.mat'],'net')
+% save(['model.mat'],'net')
+load(['model.mat'])
 
 
 
@@ -172,7 +172,10 @@ x = ga(@(x) pred(x,YTest,vys),1,A,b,Aeq,beq,lb,ub,nonlcon,optimoptions('ga','Dis
 normalized_observed_utility=-pred(x,YTest,vys)
 
 
-save('x.mat','x')
+% save('x.mat','x')
+
+
+% save('minv_maxv.mat','minv','maxv')
 
 
 
