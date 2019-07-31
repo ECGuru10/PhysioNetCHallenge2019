@@ -15,7 +15,6 @@ function [score, label] = get_sepsis_score(data, model)
     score=predict(net,data','MiniBatchSize',1,'SequencePaddingValue',sp);
     
     score=score';
-    disp(score)
     score=score(:,2);
     score=score(end);
     

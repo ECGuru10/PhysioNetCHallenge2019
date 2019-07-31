@@ -31,7 +31,6 @@ function driver(input_directory, output_directory)
             scores(t) = current_score;
             labels(t) = current_label;
         end
-        disp(scores)
 
         % Save results.
         output_file = fullfile(output_directory, files{i});
