@@ -44,8 +44,10 @@ YTest=cellfun(@(x) x' ,YTest,'UniformOutput',false);
 
 
 
-YTrain_c=cellfun(@(x) categorical(x) ,YTrain,'UniformOutput',false);
-YTest_c=cellfun(@(x) categorical(x) ,YTest,'UniformOutput',false);
+
+
+
+
 
 
 featureDimension = size(XTrain{1},1);
@@ -54,12 +56,12 @@ numResponses = featureDimension;
 
 
 
-
 numHiddenUnits = 200;
 numFc1=200;
 numFc2=100;
 blocks=6;
 layers = [sequenceInputLayer(featureDimension,'Name','input')];
+layers = [maskingInLayer('mask_in')];
 for k=1:blocks
     layers = [...
         layers
@@ -102,8 +104,8 @@ layers = [...
     fullyConnectedLayer(numFc1,'Name','fc3_final3')
     
     fullyConnectedLayer(numResponses,'Name','fcfinal_final')
-    softmaxLayer('Name','sm')
-    nanregression_layer('out')];
+    maskingOutLayer('mask_out')
+    regressionLayer('Name','routput')];
 
 layers=layerGraph(layers);
 layers=connectLayers(layers,'input','cat1/in2');
@@ -112,6 +114,9 @@ for k=1:blocks-1
     layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
     layers=connectLayers(layers,'input',['cat' num2str(k+1) '/in3']);
 end
+
+
+ layers=connectLayers(layers,'mask_in/out2','mask_out/in2');
 
 
 save_name=['cpt_nan'];
@@ -143,7 +148,7 @@ options = trainingOptions('adam', ...
 
 
 
-net = trainNetwork(XTrain,YTrain,layers,options);
+net = trainNetwork(XTrain,XTrain,layers,options);
 
 save(['model.mat'],'net')
 load(['model.mat'])
