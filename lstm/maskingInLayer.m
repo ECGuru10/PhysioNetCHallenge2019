@@ -25,10 +25,12 @@ classdef maskingInLayer < nnet.layer.Layer
             
             nonzeros=X~=0;
             
+            
+            nonzeros=cast(nonzeros,'like',X);
+            
             mask=cast(rand(size(nonzeros))>0.9,'like',X);
-            
-            
-            X(mask&nonzeros)=0;
+            mask=mask.*nonzeros;
+            X(mask==1)=0;
             
             Z = X;
 %             memory=mask;

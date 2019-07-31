@@ -31,9 +31,8 @@ classdef maskingOutLayer < nnet.layer.Layer
         end
         
         function [dLdX,dLdmask] = backward(layer,X,mask,Z,dLdZ,memory)
-            nonzeros=X~=0;
             
-            dLdX = dLdZ.*mask.*nonzeros;
+            dLdX = dLdZ.*mask;
             dLdmask=zeros(size(mask),'like',mask);
         end
     end
