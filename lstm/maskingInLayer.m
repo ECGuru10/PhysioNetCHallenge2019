@@ -1,5 +1,6 @@
 classdef maskingInLayer < nnet.layer.Layer
     
+%     
 %     properties (SetAccess = private)
 %         InputNames = {'in'}
 %         OutputNames = {'out','mask'}           
@@ -24,7 +25,7 @@ classdef maskingInLayer < nnet.layer.Layer
             
             nonzeros=X~=0;
             
-            mask=rand(size(nonzeros),'like',nonzeros)>0.9;
+            mask=cast(rand(size(nonzeros))>0.9,'like',X);
             
             
             X(mask&nonzeros)=0;

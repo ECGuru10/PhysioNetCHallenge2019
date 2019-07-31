@@ -61,7 +61,7 @@ numFc1=200;
 numFc2=100;
 blocks=6;
 layers = [sequenceInputLayer(featureDimension,'Name','input')];
-layers = [maskingInLayer('mask_in')];
+layers = [layers;sequenceFoldingLayer('Name','fold');maskingInLayer('mask_in');sequenceUnfoldingLayer('Name','unfold')];
 for k=1:blocks
     layers = [...
         layers
@@ -104,7 +104,9 @@ layers = [...
     fullyConnectedLayer(numFc1,'Name','fc3_final3')
     
     fullyConnectedLayer(numResponses,'Name','fcfinal_final')
+    sequenceFoldingLayer('Name','fold2')
     maskingOutLayer('mask_out')
+    sequenceUnfoldingLayer('Name','unfold2')
     regressionLayer('Name','routput')];
 
 layers=layerGraph(layers);
@@ -117,7 +119,9 @@ end
 
 
  layers=connectLayers(layers,'mask_in/out2','mask_out/in2');
-
+ 
+layers = connectLayers(layers,'fold/miniBatchSize','unfold/miniBatchSize');
+layers = connectLayers(layers,'fold2/miniBatchSize','unfold2/miniBatchSize');
 
 save_name=['cpt_nan'];
 mkdir(save_name)
@@ -134,7 +138,7 @@ options = trainingOptions('adam', ...
     'LearnRateSchedule','piecewise', ...
     'LearnRateDropPeriod',10, ...
     'LearnRateDropFactor',0.1, ...
-    'ValidationData',{XTest,YTest}, ...
+    'ValidationData',{XTest,XTest}, ...
     'ValidationFrequency',1000,...
     'MaxEpochs', 35, ...
     'MiniBatchSize', batch, ...
