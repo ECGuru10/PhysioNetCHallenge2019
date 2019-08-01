@@ -67,7 +67,9 @@ for k=1:3
         fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
         reluLayer('Name',['r' num2str(k) '2'])
         dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
-        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])];
+        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
+        concatenationLayer(1,3,'Name',['cat' num2str(k) ''])
+        ];
     
 end
 
@@ -83,8 +85,8 @@ layers = [...
     
     
     fullyConnectedLayer(numFc1,'Name','fc1_centerx')
-    fullyConnectedLayer(10,'Name','fc2_centerx')
-    fullyConnectedLayer(numFc1,'Name','fc3_centerx')];
+    fullyConnectedLayer(5,'Name','fc2_centerx')
+    fullyConnectedLayer(numFc1,'Name','fc3_centerx')
 
 
     fullyConnectedLayer(numFc1,'Name','fc1_center2')
@@ -93,7 +95,8 @@ layers = [...
     fullyConnectedLayer(numFc2,'Name','fc2_center2')
     reluLayer('Name','r2_center2')
     dropoutLayer(0.5,'Name','do2_center2')
-    fullyConnectedLayer(numFc1,'Name','fc3_center2')];
+    fullyConnectedLayer(numFc1,'Name','fc3_center2')
+    ];
     
     
  for k=4:6
@@ -107,7 +110,9 @@ layers = [...
         fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
         reluLayer('Name',['r' num2str(k) '2'])
         dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
-        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])];
+        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
+        concatenationLayer(1,3,'Name',['cat' num2str(k) ''])
+        ];
     
 end
     
@@ -143,6 +148,13 @@ end
     regressionLayer('Name','routput')];
 
 
+layers=layerGraph(layers);
+layers=connectLayers(layers,'input','cat1/in2');
+layers=connectLayers(layers,'input','cat1/in3');
+for k=1:6-1
+    layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
+    layers=connectLayers(layers,'input',['cat' num2str(k+1) '/in3']);
+end
 
 
 
@@ -177,15 +189,49 @@ options = trainingOptions('adam', ...
 
 net = trainNetwork(XTrain,XTrain,layers,options);
 
-save(['model_nan.mat'],'net')
-% load(['model.mat'])
+
+
+
+lgraph = layerGraph(net);
+lgraph = removeLayers(lgraph,{'fc3_centerx','fc1_center2','r1_center2','do1_center2','fc2_center2','r2_center2','do2_center2','fc3_center2'});
+
+ for k=4:6
+    lgraph = removeLayers(lgraph,['fc' num2str(k) '0']);
+    lgraph = removeLayers(lgraph,['lstm' num2str(k)]);
+    lgraph = removeLayers(lgraph,['fc' num2str(k) '1']);
+    lgraph = removeLayers(lgraph,['r' num2str(k) '1']);
+    lgraph = removeLayers(lgraph,['do' num2str(k) '1']);
+    lgraph = removeLayers(lgraph,['fc' num2str(k) '2']);
+    lgraph = removeLayers(lgraph,['r' num2str(k) '2']);
+    lgraph = removeLayers(lgraph,['do' num2str(k) '2']);
+    lgraph = removeLayers(lgraph,['fc' num2str(k) '3']);
+    lgraph = removeLayers(lgraph,['cat' num2str(k) '']);
+     
+ end
+
+lgraph = removeLayers(lgraph,{'fc1_final','r1_final','do1_final','fc2_final','r2_final','do2_final','fc3_final'});
+lgraph = removeLayers(lgraph,{'fc1_final2','r1_final2','do1_final2','fc2_final2','r2_final2','do2_fina2','fc3_final2'});
+lgraph = removeLayers(lgraph,{'fc1_final3','r1_final3','do1_final3','fc2_final3','r2_final3','do2_fina3','fc3_final3','fcfinal_final'});
+
+
+lgraph = connectLayers(lgraph,'fc2_centerx','routput');
+
+
+net2 = assembleNetwork(lgraph);
+
+save(['model_auto.mat'],'net')
+save(['model_auto2.mat'],'net2')
+
+load(['model_auto2.mat'])
+
+
 
 
 
 vys=cell(size(XTest));
 for k=1:length(XTest)
     k
-    vyss=predict(net,XTest{k},'MiniBatchSize',1,'SequencePaddingValue',sp);
+    vyss=predict(net2,XTest{k},'MiniBatchSize',1,'SequencePaddingValue',sp);
     vys{k}=vyss;
 end
 
