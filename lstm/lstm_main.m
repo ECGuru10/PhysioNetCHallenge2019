@@ -24,15 +24,21 @@ w=numel(cat(1,YTrain{:}))/sum(cat(1,YTrain{:}));
 
 
 
-maxv= max(cat(1,XTrain{:}),[],1);
-minv= min(cat(1,XTrain{:}),[],1);
-XTrain=cellfun(@(x)  normalize015(x,minv,maxv),XTrain,'UniformOutput',false);
-XTest=cellfun(@(x) normalize015(x,minv,maxv),XTest,'UniformOutput',false);
+% maxv= max(cat(1,XTrain{:}),[],1);
+% minv= min(cat(1,XTrain{:}),[],1);
+% XTrain=cellfun(@(x)  normalize015(x,minv,maxv),XTrain,'UniformOutput',false);
+% XTest=cellfun(@(x) normalize015(x,minv,maxv),XTest,'UniformOutput',false);
+% 
+% 
+% 
+% XTrain=cellfun(@(x) nany_na_nuly(x) ,XTrain,'UniformOutput',false);
+% XTest=cellfun(@(x) nany_na_nuly(x) ,XTest,'UniformOutput',false);
 
+featureList = column_names;
+customScale = [0 1];
 
-
-XTrain=cellfun(@(x) nany_na_nuly(x) ,XTrain,'UniformOutput',false);
-XTest=cellfun(@(x) nany_na_nuly(x) ,XTest,'UniformOutput',false);
+XTrain = cellfun(@(x)  FeatureScaling( x, featureList, customScale ), XTrain, 'UniformOutput', false);
+XTest = cellfun(@(x)  FeatureScaling( x, featureList, customScale ), XTest, 'UniformOutput', false);
 
 
 drawnow;
