@@ -44,19 +44,19 @@ YTest=cellfun(@(x) x' ,YTest,'UniformOutput',false);
 
 
 load('../model_auto2.mat')
-for k =1:length(XTrain)
-    x=XTrain{k};
-    xx=predict(net2,x,'MiniBatchSize',1,'SequencePaddingValue',0);
-    XTrain{k}=cat(1,x,xx);
-    
-end
-for k =1:length(XTest)
-    x=XTest{k};
-    xx=predict(net2,x,'MiniBatchSize',1,'SequencePaddingValue',0);
-    XTest{k}=cat(1,x,xx);
-end
+% for k =1:length(XTrain)
+%     x=XTrain{k};
+%     xx=predict(net2,x,'MiniBatchSize',1,'SequencePaddingValue',0);
+%     XTrain{k}=cat(1,x,xx);
+%     
+% end
+% for k =1:length(XTest)
+%     x=XTest{k};
+%     xx=predict(net2,x,'MiniBatchSize',1,'SequencePaddingValue',0);
+%     XTest{k}=cat(1,x,xx);
+% end
 
-
+lgraph = layerGraph(net2);
 
 
 
@@ -71,61 +71,64 @@ featureDimension = size(XTrain{1},1);
 numHiddenUnits = 300;
 numFc1=200;
 numFc2=100;
-blocks=10;
-layers = [sequenceInputLayer(featureDimension,'Name','input')];
+blocks=4;
+layers = [];
 for k=1:blocks
     layers = [...
         layers
-        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '0'])
-        lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['lstm' num2str(k)])
-        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '1'])
-        reluLayer('Name',['r' num2str(k) '1'])
-        dropoutLayer(0.01,'Name',['do' num2str(k) '1'])
-        fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
-        reluLayer('Name',['r' num2str(k) '2'])
-        dropoutLayer(0.01,'Name',['do' num2str(k) '2'])
-        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
-        concatenationLayer(1,3,'Name',['cat' num2str(k) ''])];
+        fullyConnectedLayer(numFc1,'Name',['qfc' num2str(k) '0'])
+        lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['qlstm' num2str(k)])
+        fullyConnectedLayer(numFc1,'Name',['qfc' num2str(k) '1'])
+        reluLayer('Name',['qr' num2str(k) '1'])
+        dropoutLayer(0.01,'Name',['qdo' num2str(k) '1'])
+        fullyConnectedLayer(numFc2,'Name',['qfc' num2str(k) '2'])
+        reluLayer('Name',['qr' num2str(k) '2'])
+        dropoutLayer(0.01,'Name',['qdo' num2str(k) '2'])
+        fullyConnectedLayer(numFc1,'Name',['qfc' num2str(k) '3'])
+        concatenationLayer(1,3,'Name',['qcat' num2str(k) ''])];
     
 end
 layers = [...
     layers
-    fullyConnectedLayer(numFc1,'Name','fc1_final')
-    reluLayer('Name','r1_final')
-    dropoutLayer(0.01,'Name','do1_final')
-    fullyConnectedLayer(numFc2,'Name','fc2_final')
-    reluLayer('Name','r2_final')
-    dropoutLayer(0.01,'Name','do2_final')
-    fullyConnectedLayer(numFc1,'Name','fc3_final')
+    fullyConnectedLayer(numFc1,'Name','qfc1_final')
+    reluLayer('Name','qr1_final')
+    dropoutLayer(0.01,'Name','qdo1_final')
+    fullyConnectedLayer(numFc2,'Name','qfc2_final')
+    reluLayer('Name','qr2_final')
+    dropoutLayer(0.01,'Name','qdo2_final')
+    fullyConnectedLayer(numFc1,'Name','qfc3_final')
     
-    fullyConnectedLayer(numFc1,'Name','fc1_final2')
-    reluLayer('Name','r1_final2')
-    dropoutLayer(0.01,'Name','do1_final2')
-    fullyConnectedLayer(numFc2,'Name','fc2_final2')
-    reluLayer('Name','r2_final2')
-    dropoutLayer(0.01,'Name','do2_fina2')
-    fullyConnectedLayer(numFc1,'Name','fc3_final2')
+    fullyConnectedLayer(numFc1,'Name','qfc1_final2')
+    reluLayer('Name','qr1_final2')
+    dropoutLayer(0.01,'Name','qdo1_final2')
+    fullyConnectedLayer(numFc2,'Name','qfc2_final2')
+    reluLayer('Name','qr2_final2')
+    dropoutLayer(0.01,'Name','qdo2_fina2')
+    fullyConnectedLayer(numFc1,'Name','qfc3_final2')
     
-    fullyConnectedLayer(numFc1,'Name','fc1_final3')
-    reluLayer('Name','r1_final3')
-    dropoutLayer(0.01,'Name','do1_final3')
-    fullyConnectedLayer(numFc2,'Name','fc2_final3')
-    reluLayer('Name','r2_final3')
-    dropoutLayer(0.01,'Name','do2_fina3')
-    fullyConnectedLayer(numFc1,'Name','fc3_final3')
+    fullyConnectedLayer(numFc1,'Name','qfc1_final3')
+    reluLayer('Name','qr1_final3')
+    dropoutLayer(0.01,'Name','qdo1_final3')
+    fullyConnectedLayer(numFc2,'Name','qfc2_final3')
+    reluLayer('Name','qr2_final3')
+    dropoutLayer(0.01,'Name','qdo2_fina3')
+    fullyConnectedLayer(numFc1,'Name','qfc3_final3')
     
-    fullyConnectedLayer(numResponses,'Name','fcfinal_final')
-    softmaxLayer('Name','sm')
-    diceClassificationLayer('out')];
+    fullyConnectedLayer(numResponses,'Name','qfcfinal_final')
+    softmaxLayer('Name','qsm')
+    diceClassificationLayer('qout')];
 
-layers=layerGraph(layers);
-layers=connectLayers(layers,'input','cat1/in2');
-layers=connectLayers(layers,'input','cat1/in3');
+lgraph=removeLayers(lgraph,{'routput'});
+
+layers=addLayers(lgraph,layers);
+% layers=layerGraph(layers);
+layers=connectLayers(layers,'fc2_centerx','qcat1/in2');
+layers=connectLayers(layers,'input','qcat1/in3');
 for k=1:blocks-1
-    layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
-    layers=connectLayers(layers,'input',['cat' num2str(k+1) '/in3']);
+    layers=connectLayers(layers,['qcat' num2str(k) ''],['qcat' num2str(k+1) '/in2']);
+    layers=connectLayers(layers,'fc2_centerx',['qcat' num2str(k+1) '/in3']);
 end
-
+layers=connectLayers(layers,'fc2_centerx','qfc10');
 
 save_name=['cpt'];
 mkdir(save_name)
