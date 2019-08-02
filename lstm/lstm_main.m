@@ -55,7 +55,7 @@ featureDimension = size(XTrain{1},1);
 numHiddenUnits = 300;
 numFc1=200;
 numFc2=100;
-blocks=12;
+blocks=10;
 layers = [sequenceInputLayer(featureDimension,'Name','input')];
 for k=1:blocks
     layers = [...
@@ -64,10 +64,10 @@ for k=1:blocks
         lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['lstm' num2str(k)])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '1'])
         reluLayer('Name',['r' num2str(k) '1'])
-        dropoutLayer(0.5,'Name',['do' num2str(k) '1'])
+        dropoutLayer(0.01,'Name',['do' num2str(k) '1'])
         fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
         reluLayer('Name',['r' num2str(k) '2'])
-        dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
+        dropoutLayer(0.01,'Name',['do' num2str(k) '2'])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
         concatenationLayer(1,3,'Name',['cat' num2str(k) ''])];
     
@@ -76,26 +76,26 @@ layers = [...
     layers
     fullyConnectedLayer(numFc1,'Name','fc1_final')
     reluLayer('Name','r1_final')
-    dropoutLayer(0.5,'Name','do1_final')
+    dropoutLayer(0.01,'Name','do1_final')
     fullyConnectedLayer(numFc2,'Name','fc2_final')
     reluLayer('Name','r2_final')
-    dropoutLayer(0.5,'Name','do2_final')
+    dropoutLayer(0.01,'Name','do2_final')
     fullyConnectedLayer(numFc1,'Name','fc3_final')
     
     fullyConnectedLayer(numFc1,'Name','fc1_final2')
     reluLayer('Name','r1_final2')
-    dropoutLayer(0.5,'Name','do1_final2')
+    dropoutLayer(0.01,'Name','do1_final2')
     fullyConnectedLayer(numFc2,'Name','fc2_final2')
     reluLayer('Name','r2_final2')
-    dropoutLayer(0.5,'Name','do2_fina2')
+    dropoutLayer(0.01,'Name','do2_fina2')
     fullyConnectedLayer(numFc1,'Name','fc3_final2')
     
     fullyConnectedLayer(numFc1,'Name','fc1_final3')
     reluLayer('Name','r1_final3')
-    dropoutLayer(0.5,'Name','do1_final3')
+    dropoutLayer(0.01,'Name','do1_final3')
     fullyConnectedLayer(numFc2,'Name','fc2_final3')
     reluLayer('Name','r2_final3')
-    dropoutLayer(0.5,'Name','do2_fina3')
+    dropoutLayer(0.01,'Name','do2_fina3')
     fullyConnectedLayer(numFc1,'Name','fc3_final3')
     
     fullyConnectedLayer(numResponses,'Name','fcfinal_final')
