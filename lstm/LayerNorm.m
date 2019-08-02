@@ -61,12 +61,12 @@ classdef LayerNorm < nnet.layer.Layer
                 Z=Z.*g-b;
                 
             else
-                mu=mean(X,[1 3]);
-                mu=reshape(mu,1,[],1);
-                mu=repmat(mu,[shape(1) 1 shape(3)]);
+                mu=mean(X,[1]);
+                mu=reshape(mu,1, shape(2), shape(3);
+                mu=repmat(mu,[shape(1) 1 1]);
                 sig2=sum((X-mu).^2,[1 3]);
-                sig2=reshape(sig2,1,[],1);
-                sig2=repmat(sig2,[shape(1) 1  shape(3)]);
+                sig2=reshape(sig2,1, shape(2), shape(3));
+                sig2=repmat(sig2,[shape(1) 1  1)]);
                 Z=(X-mu)./sqrt(sig2+layer.Epsilon);
                 
                 g=layer.Gamma;
@@ -110,12 +110,12 @@ classdef LayerNorm < nnet.layer.Layer
                 Z=Z.*g-b;
                 
             else
-                mu=mean(X,[1 3]);
-                mu=reshape(mu,1,[],1);
-                mu=repmat(mu,[shape(1) 1 shape(3)]);
-                sig2=sum((X-mu).^2,[1 3]);
-                sig2=reshape(sig2,1,[],1);
-                sig2=repmat(sig2,[shape(1) 1  shape(3)]);
+                mu=mean(X,[1]);
+                mu=reshape(mu,1, shape(2), shape(3));
+                mu=repmat(mu,[shape(1) 1 1]);
+                sig2=sum((X-mu).^2,[1]);
+                sig2=reshape(sig2,1, shape(2), shape(3));
+                sig2=repmat(sig2,[shape(1) 1  1]);
                 Z=(X-mu)./sqrt(sig2+layer.Epsilon);
                 
                 g=layer.Gamma;
@@ -171,12 +171,12 @@ classdef LayerNorm < nnet.layer.Layer
 %                 Z=Z.*g-b;
                 
             else
-                mu=mean(X,[1 3]);
-                mu=reshape(mu,1,[],1);
-                mu=repmat(mu,[shape(1) 1 shape(3)]);
-                sig2=sum((X-mu).^2,[1 3]);
-                sig2=reshape(sig2,1,[],1);
-                sig2=repmat(sig2,[shape(1) 1  shape(3)]);
+                mu=mean(X,[1]);
+                mu=reshape(mu,1, shape(2), shape(3));
+                mu=repmat(mu,[shape(1) 1 1)]);
+                sig2=sum((X-mu).^2,[1]);
+                sig2=reshape(sig2,1, shape(2), shape(3));
+                sig2=repmat(sig2,[shape(1) 1 1]);
 %                 Z=(X-mu)./sqrt(sig2+layer.Epsilon);
                 
                 g=layer.Gamma;
