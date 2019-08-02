@@ -36,10 +36,13 @@ w=numel(cat(1,YTrain{:}))/sum(cat(1,YTrain{:}));
 
 featureList = column_names;
 customScale = [0 1];
+q=-1;
 
 XTrain = cellfun(@(x)  FeatureScaling( x, featureList, customScale ), XTrain, 'UniformOutput', false);
 XTest = cellfun(@(x)  FeatureScaling( x, featureList, customScale ), XTest, 'UniformOutput', false);
 
+XTrain=cellfun(@(x) nany_na_x(x,q) ,XTrain,'UniformOutput',false);
+XTest=cellfun(@(x) nany_na_x(x,q) ,XTest,'UniformOutput',false);
 
 drawnow;
 
