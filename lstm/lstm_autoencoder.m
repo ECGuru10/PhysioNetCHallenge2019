@@ -63,10 +63,10 @@ for k=1:3
         lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['lstm' num2str(k)])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '1'])
         reluLayer('Name',['r' num2str(k) '1'])
-        dropoutLayer(0.5,'Name',['do' num2str(k) '1'])
+        dropoutLayer(0.01,'Name',['do' num2str(k) '1'])
         fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
         reluLayer('Name',['r' num2str(k) '2'])
-        dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
+        dropoutLayer(0.01,'Name',['do' num2str(k) '2'])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
         concatenationLayer(1,3,'Name',['cat' num2str(k) ''])
         ];
@@ -77,10 +77,10 @@ layers = [...
     layers
     fullyConnectedLayer(numFc1,'Name','fc1_center')
     reluLayer('Name','r1_center')
-    dropoutLayer(0.5,'Name','do1_center')
+    dropoutLayer(0.01,'Name','do1_center')
     fullyConnectedLayer(numFc2,'Name','fc2_center')
     reluLayer('Name','r2_center')
-    dropoutLayer(0.5,'Name','do2_center')
+    dropoutLayer(0.01,'Name','do2_center')
     fullyConnectedLayer(numFc1,'Name','fc3_center')
     
     
@@ -91,10 +91,10 @@ layers = [...
 
     fullyConnectedLayer(numFc1,'Name','fc1_center2')
     reluLayer('Name','r1_center2')
-    dropoutLayer(0.5,'Name','do1_center2')
+    dropoutLayer(0.01,'Name','do1_center2')
     fullyConnectedLayer(numFc2,'Name','fc2_center2')
     reluLayer('Name','r2_center2')
-    dropoutLayer(0.5,'Name','do2_center2')
+    dropoutLayer(0.01,'Name','do2_center2')
     fullyConnectedLayer(numFc1,'Name','fc3_center2')
     ];
     
@@ -106,10 +106,10 @@ layers = [...
         lstmLayer(numHiddenUnits,'OutputMode','sequence','Name',['lstm' num2str(k)])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '1'])
         reluLayer('Name',['r' num2str(k) '1'])
-        dropoutLayer(0.5,'Name',['do' num2str(k) '1'])
+        dropoutLayer(0.01,'Name',['do' num2str(k) '1'])
         fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
         reluLayer('Name',['r' num2str(k) '2'])
-        dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
+        dropoutLayer(0.01,'Name',['do' num2str(k) '2'])
         fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
         concatenationLayer(1,3,'Name',['cat' num2str(k) ''])
         ];
@@ -122,26 +122,26 @@ end
     layers
     fullyConnectedLayer(numFc1,'Name','fc1_final')
     reluLayer('Name','r1_final')
-    dropoutLayer(0.5,'Name','do1_final')
+    dropoutLayer(0.01,'Name','do1_final')
     fullyConnectedLayer(numFc2,'Name','fc2_final')
     reluLayer('Name','r2_final')
-    dropoutLayer(0.5,'Name','do2_final')
+    dropoutLayer(0.01,'Name','do2_final')
     fullyConnectedLayer(numFc1,'Name','fc3_final')
     
     fullyConnectedLayer(numFc1,'Name','fc1_final2')
     reluLayer('Name','r1_final2')
-    dropoutLayer(0.5,'Name','do1_final2')
+    dropoutLayer(0.01,'Name','do1_final2')
     fullyConnectedLayer(numFc2,'Name','fc2_final2')
     reluLayer('Name','r2_final2')
-    dropoutLayer(0.5,'Name','do2_fina2')
+    dropoutLayer(0.01,'Name','do2_fina2')
     fullyConnectedLayer(numFc1,'Name','fc3_final2')
     
     fullyConnectedLayer(numFc1,'Name','fc1_final3')
     reluLayer('Name','r1_final3')
-    dropoutLayer(0.5,'Name','do1_final3')
+    dropoutLayer(0.01,'Name','do1_final3')
     fullyConnectedLayer(numFc2,'Name','fc2_final3')
     reluLayer('Name','r2_final3')
-    dropoutLayer(0.5,'Name','do2_fina3')
+    dropoutLayer(0.01,'Name','do2_fina3')
     fullyConnectedLayer(numFc1,'Name','fc3_final3')
     
     fullyConnectedLayer(numResponses,'Name','fcfinal_final')
@@ -151,11 +151,16 @@ end
 layers=layerGraph(layers);
 layers=connectLayers(layers,'input','cat1/in2');
 layers=connectLayers(layers,'input','cat1/in3');
-for k=1:6-1
+layers=connectLayers(layers,'fc3_center2','cat4/in2');
+layers=connectLayers(layers,'fc3_center2','cat4/in3');
+for k=1:2
     layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
     layers=connectLayers(layers,'input',['cat' num2str(k+1) '/in3']);
 end
-
+for k=4:5
+    layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
+    layers=connectLayers(layers,'fc3_center2',['cat' num2str(k+1) '/in3']);
+end
 
 
 save_name=['cpt_auto'];
