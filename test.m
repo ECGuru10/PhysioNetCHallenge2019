@@ -1,2 +1,2 @@
 clc;clear all;close all;
-driver('../training_original2_part','../res_tmp')
+driver('../training_original2','../res_tmp')
