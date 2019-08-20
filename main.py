@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import normalization, replace_nan, AdjustLearningRate, dice_loss, get_utility
-from nets import LSTM
+from nets import LSTM_residual
 
 import torch.nn as nn
 import torch.nn.functional as F 
@@ -14,10 +14,10 @@ from scipy.optimize import minimize_scalar
 
 data_path=('../train_test_data2')
 
-XTrain=np.load(data_path+'/XTrain.npy')
-YTrain=np.load(data_path+'/YTrain.npy')
-XTest=np.load(data_path+'/XTest.npy')
-YTest=np.load(data_path+'/YTest.npy')
+XTrain=np.load(data_path+'/XTrain.npy',allow_pickle=True)
+YTrain=np.load(data_path+'/YTrain.npy',allow_pickle=True)
+XTest=np.load(data_path+'/XTest.npy',allow_pickle=True)
+YTest=np.load(data_path+'/YTest.npy',allow_pickle=True)
     
 
 minv=np.nanmin(np.concatenate(XTrain,axis=0),axis=0)
@@ -34,7 +34,7 @@ in_size=XTrain[0].shape[1]
 out_size=1
 hiden_dim=200
 
-net=LSTM(in_size,hiden_dim,out_size).cuda()
+net=LSTM_residual(in_size,hiden_dim,out_size).cuda()
 
 optimizer = optim.Adam(net.parameters(), lr=0.001,weight_decay=1e-6)
 
@@ -59,7 +59,7 @@ test_loss_tmp=[]
 test_util=[]
 
 for it in range(train_iter):
-    if it%50==0:
+    if it%1==0:
         print(it)
     
     net.train()
