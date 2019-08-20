@@ -2,7 +2,7 @@
 import torch.nn as nn
 import torch.nn.functional as F 
 import torch
-from lstms import (LSTM,LayerNormLSTM,LayerNormGalLSTM,MultiLayerLSTM)
+from lstms.lstm import LayerNormGalLSTM
 
 
 
@@ -69,7 +69,7 @@ class LSTM_residual(nn.Module):
         self.lstms.append(LayerNormGalLSTM(h_size,h_size,dropout=dropout))
         self.linears2.append(nn.Linear(2*h_size,h_size))
         self.dos.append(nn.Dropout(p=dropout))
-        self.linears3.append(nn.Linear(h_size,y_size))
+        self.linears3.append(nn.Linear(h_size,h_size))
     
     self.linear_last=nn.Linear(h_size,y_size)
     
@@ -82,6 +82,7 @@ class LSTM_residual(nn.Module):
     y_last=y
       
     for k in range(self.blocks):
+        print(k)
         y=torch.cat((x,y,y_last),2)
         y=self.linears1[k](y)
         y_last=y
@@ -89,11 +90,13 @@ class LSTM_residual(nn.Module):
         h=torch.zeros((y.size(0),1, self.h_size)).cuda()
         c=torch.zeros((y.size(0),1, self.h_size)).cuda()
         self.lstms[k].sample_mask()
-        for kk in range(y.size(0)):
+        yy=[]
+        for kk in range(y.size(1)):
             y_tmp=y[:,[kk],:]
             y_tmp,(h,c)=self.lstms[k](y_tmp,(h,c))
-            y[:,kk,:]=y_tmp
+            yy.append(y_tmp)
             
+        y=torch.cat(yy,1)
         y=torch.cat((y,y_last),2)
         y=self.linears2[k](y)
         y=self.dos[k](y)

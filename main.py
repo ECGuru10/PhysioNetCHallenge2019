@@ -12,6 +12,9 @@ from torch.nn.utils.rnn import pack_sequence, pack_padded_sequence
 
 from scipy.optimize import minimize_scalar
 
+torch.autograd.set_detect_anomaly(True)
+
+
 data_path=('../train_test_data2')
 
 XTrain=np.load(data_path+'/XTrain.npy',allow_pickle=True)

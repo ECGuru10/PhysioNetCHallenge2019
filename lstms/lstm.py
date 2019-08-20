@@ -85,8 +85,7 @@ class LSTM(nn.Module):
             if self.dropout_method == 'pytorch':
                 F.dropout(h_t, p=self.dropout, training=self.training, inplace=True)
             if self.dropout_method == 'gal':
-                    h_t =th.mul(h_t, self.mask)
-                    h_t *= 1.0/(1.0 - self.dropout)
+                h_t =th.mul(h_t, self.mask)*1.0/(1.0 - self.dropout)
 
         h_t = h_t.view(1, h_t.size(0), -1)
         c_t = c_t.view(1, c_t.size(0), -1)
@@ -158,11 +157,10 @@ class LayerNormLSTM(LSTM):
             if self.dropout_method == 'pytorch':
                 F.dropout(h_t, p=self.dropout, training=self.training, inplace=True)
             if self.dropout_method == 'gal':
-                    h_t =th.mul(h_t, self.mask)
-                    h_t *= 1.0/(1.0 - self.dropout)
+                h_t =th.mul(h_t, self.mask)*1.0/(1.0 - self.dropout)
 
-        h_t = h_t.view(1, h_t.size(0), -1)
-        c_t = c_t.view(1, c_t.size(0), -1)
+        h_t = h_t.view(h_t.size(0),1, -1)
+        c_t = c_t.view(c_t.size(0),1, -1)
         return h_t, (h_t, c_t)
 
 
