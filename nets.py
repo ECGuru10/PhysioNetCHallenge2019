@@ -2,8 +2,6 @@
 import torch.nn as nn
 import torch.nn.functional as F 
 import torch
-from lstms.lstm import LayerNormGalLSTM
-
 
 
 
@@ -121,4 +119,30 @@ class LSTM_residual(nn.Module):
         
         
         
+class Transformer_net(nn.Module):        
+    def __init__(self,x_size,y_size, nhead=4,num_layers=2):
+        super(Transformer_net, self).__init__()
+        d_model=x_size
         
+#        encoder_layer = nn.TransformerEncoderLayer(d_model, nhead,dim_feedforward=2048, dropout=0.1)
+#        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers)
+        self.transformer=torch.nn.Transformer(d_model=d_model, nhead=nhead, num_encoder_layers=num_layers, num_decoder_layers=num_layers, dim_feedforward=256, dropout=0.1, custom_encoder=None, custom_decoder=None)
+        
+        self.linear_last=nn.Linear(x_size,y_size)
+        
+        
+    def forward(self, x,pos=-1):
+        
+        x=x.permute([1,0,2])
+        
+        y=self.transformer(x[:pos+1,:,:],x[[pos],:,:])
+        y=self.linear_last(y)
+        
+        y=y.permute([1,0,2])
+        return y
+    
+    
+    
+    
+    
+    

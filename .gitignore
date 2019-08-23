@@ -4,3 +4,4 @@
 lstm/cpt/*.mat
 lstm/cpt_nan/*.mat
 lstm/cpt_auto/*.mat
+models/*

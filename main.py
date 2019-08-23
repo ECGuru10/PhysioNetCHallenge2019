@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import normalization, replace_nan, AdjustLearningRate, dice_loss, get_utility
-from nets import LSTM_residual
+from nets import Transformer_net
 
 import torch.nn as nn
 import torch.nn.functional as F 
@@ -37,16 +37,15 @@ in_size=XTrain[0].shape[1]
 out_size=1
 hiden_dim=200
 
-net=LSTM_residual(in_size,hiden_dim,out_size).cuda()
+net=Transformer_net(in_size,out_size).cuda()
 
-optimizer = optim.Adam(net.parameters(), lr=0.001,weight_decay=1e-6)
+optimizer = optim.Adam(net.parameters(), lr=0.0001,weight_decay=1e-8)
 
 adj_lr = AdjustLearningRate(lr_step=3000)
 
 
 
-train_iter=10000
-batch=64
+batch=128
 pad_token=-1
 
 
@@ -61,8 +60,12 @@ train_loss_tmp=[]
 test_loss_tmp=[]
 test_util=[]
 
-for it in range(train_iter):
-    if it%1==0:
+
+stop=0
+it=-1
+while stop==0:
+    it+=1
+    if it%50==0:
         print(it)
     
     net.train()
@@ -86,12 +89,17 @@ for it in range(train_iter):
     xx.requires_grad=True
     tt.requires_grad=True
     
-    net.init_hiden(batch)
+#    net.init_hiden(batch)
     
 
+    pos = np.where(tt.detach().cpu().numpy()!=pad_token)[1]
+    pos = np.random.choice(pos)
+            
+
+    yy=net(xx,pos=pos)
+    tt=tt[:,[pos],:]
     
     
-    yy=net(xx)
     yy=torch.sigmoid(yy)
     
     yy=yy[tt!=pad_token]
@@ -111,7 +119,7 @@ for it in range(train_iter):
     if it%1000==0:# and it!=0:
         tt_store=[]
         yy_store=[]
-        for itt in range(N_test):
+        for itt in range(int(5*(N_test/batch))):
             net.eval()
     
             ind=np.random.randint(low=0,high=N_test,size=batch)
@@ -130,9 +138,14 @@ for it in range(train_iter):
             xx.requires_grad=True
             tt.requires_grad=True
             
-            net.init_hiden(batch)
+#            net.init_hiden(batch)
             
-            yy=net(xx)
+            pos = np.where(tt.detach().cpu().numpy()!=pad_token)[1]
+            pos = np.random.choice(pos)
+            
+            
+            yy=net(xx,pos=pos)
+            tt=tt[:,[pos],:]
             yy=torch.sigmoid(yy)
             
 #            ttt=tt.detach().cpu().numpy()
@@ -160,7 +173,7 @@ for it in range(train_iter):
         train_loss_tmp=[]
         test_loss_tmp=[]
         
-        adj_lr.step(optimizer,iteration=it,loss=test_loss[-1])
+        stop=adj_lr.step(optimizer,iteration=it,loss=test_loss[-1])
         
 #        
 #        res=minimize_scalar(get_utility,bounds=(0.01, 0.99), method='bounded',args=(yy_store,tt_store),options=dict([('maxiter',20),('disp',1)]))
@@ -173,6 +186,7 @@ for it in range(train_iter):
             lr_act=param_group['lr']
             
         print(str(it) + ' train loss: ' + str(train_loss[-1]) + ' test loss: ' + str(test_loss[-1]) +'   util: '+ '  lr: ' +str(lr_act))
+        torch.save(net,'models/' + str(it) + '_' + str(test_loss[-1]) + '.pkl')
         
         plt.plot(position,train_loss)
         plt.plot(position,test_loss)
@@ -181,10 +195,65 @@ for it in range(train_iter):
 #        plt.plot(position,test_util)
 #        plt.show()
         
+batch=128
+tt_store=[]
+yy_store=[]
+for itt in range(0,N_test,batch):
+    print(itt)
+    net.eval()
+
+#    ind=np.random.randint(low=0,high=N_test,size=batch)
+    ind=np.arange(itt,itt+batch)
+    ind=ind[ind<N_test]  
+    xx=[]
+    tt=[]
+    lengths=[]
+    for i in ind:
+        xx.append(torch.Tensor(XTest[i]))
+        tt.append(torch.Tensor(torch.Tensor(YTest[i]))) 
+        lengths.append(len(YTest[i]))
+
+    xx=pad_sequence(xx,batch_first=True,padding_value=pad_token).cuda()
+    tt=pad_sequence(tt,batch_first=True,padding_value=pad_token).cuda()
+    lengths=torch.Tensor(lengths)
     
+    xx.requires_grad=True
+    tt.requires_grad=True
+    
+#            net.init_hiden(batch)
+    
+    pos = np.where(tt.detach().cpu().numpy()!=pad_token)[1]
+    pos = np.random.choice(pos)
+    
+    
+   
+    yy=[]
+    for kk in range(xx.size(1)):
+        y_tmp=net(xx,pos=kk).detach()
+        yy.append(y_tmp)
+    
+    
+    yy=torch.cat(yy,1)
+    yy=torch.sigmoid(yy)
+    
+    ttt=tt.detach().cpu().numpy()
+    yyy=yy.detach().cpu().numpy()
+    for k in range(xx.size(0)):
+        tt_slice=ttt[k,:,:]
+        yy_slice=yyy[k,:,:]
+        tt_store.append(tt_slice[tt_slice!=pad_token])
+        yy_store.append(yy_slice[tt_slice!=pad_token])
+    
+    yy=yy[tt!=pad_token]
+    tt=tt[tt!=pad_token]
+    
+    loss=dice_loss(yy,tt)
+    
+    test_loss_tmp.append(loss.detach().cpu().numpy())        
         
-        
+print('geting utility')
 res=minimize_scalar(get_utility,bounds=(0.01, 0.99), method='bounded',args=(yy_store,tt_store),options=dict([('maxiter',50),('disp',1)]))
 
 print(get_utility(res.x,yy_store,tt_store))        
     
+net=torch.load('models/51000_0.5038155.pkl')

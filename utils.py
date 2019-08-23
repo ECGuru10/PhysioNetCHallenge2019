@@ -50,7 +50,7 @@ class AdjustLearningRate():
         except:
             pass
         
-        if  1:#loss<self.best_loss:
+        if  0:#loss<self.best_loss:
             self.best_loss_pos=iteration
             self.best_loss=loss
 #        
@@ -63,9 +63,9 @@ class AdjustLearningRate():
             self.best_loss=loss
             print('lr down')
             for param_group in optimizer.param_groups:
-                param_group['lr'] = param_group['lr'] *0.5
+                param_group['lr'] = param_group['lr'] *0.3
                 
-        if  self.stopcount>=6:
+        if  self.stopcount>=4:
             return 1
         else:
             return 0
