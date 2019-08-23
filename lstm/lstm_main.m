@@ -11,6 +11,8 @@ load('train_test_ind.mat');
 drawnow;
 
 
+[data,datanan]=odstran_nany_hloupe(data);
+
 XTrain=data(r_train);
 YTrain=labels(r_train);
 is_septic=contain_sepsis(r_train);
@@ -21,18 +23,29 @@ YTest=labels(r_test);
 
 w=numel(cat(1,YTrain{:}))/sum(cat(1,YTrain{:}));
 
+% mu=nanmean(cat(1,XTrain{:}),1);
+% sig=nanstd(cat(1,XTrain{:}),0,1);
+% XTrain=cellfun(@(x) (x-repmat(mu,[size(x,1),1]))./repmat(sig,[size(x,1),1]) ,XTrain,'UniformOutput',false);
+% XTest=cellfun(@(x) (x-repmat(mu,[size(x,1),1]))./repmat(sig,[size(x,1),1])  ,XTest,'UniformOutput',false);
 
+
+% maxv= max(cat(1,XTrain{:}),[],1);
+% minv= min(cat(1,XTrain{:}),[],1);
+% XTrain=cellfun(@(x)  normalize015(x,minv,maxv),XTrain,'UniformOutput',false);
+% XTest=cellfun(@(x) normalize015(x,minv,maxv),XTest,'UniformOutput',false);
 
 
 maxv= max(cat(1,XTrain{:}),[],1);
 minv= min(cat(1,XTrain{:}),[],1);
-XTrain=cellfun(@(x)  normalize015(x,minv,maxv),XTrain,'UniformOutput',false);
-XTest=cellfun(@(x) normalize015(x,minv,maxv),XTest,'UniformOutput',false);
+XTrain=cellfun(@(x)  normalize11(x,minv,maxv),XTrain,'UniformOutput',false);
+XTest=cellfun(@(x) normalize11(x,minv,maxv),XTest,'UniformOutput',false);
 
 
 
-XTrain=cellfun(@(x) nany_na_nuly(x) ,XTrain,'UniformOutput',false);
-XTest=cellfun(@(x) nany_na_nuly(x) ,XTest,'UniformOutput',false);
+% 
+% 
+% XTrain=cellfun(@(x) nany_na_nuly(x) ,XTrain,'UniformOutput',false);
+% XTest=cellfun(@(x) nany_na_nuly(x) ,XTest,'UniformOutput',false);
 
 
 drawnow;
@@ -55,7 +68,7 @@ featureDimension = size(XTrain{1},1);
 numHiddenUnits = 300;
 numFc1=200;
 numFc2=100;
-blocks=12;
+blocks=6;
 layers = [sequenceInputLayer(featureDimension,'Name','input')];
 for k=1:blocks
     layers = [...
