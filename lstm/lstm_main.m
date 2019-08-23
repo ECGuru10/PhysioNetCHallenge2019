@@ -180,3 +180,15 @@ save('minv_maxv.mat','minv','maxv')
 
 
 
+prah=x;
+vys_bin=cellfun(@(x) x>prah,vys,'UniformOutput',false);
+vys_bin_T=cellfun(@(x) x' ,vys_bin,'UniformOutput',false);
+vys_T=cellfun(@(x) x' ,vys,'UniformOutput',false);
+YTest_T=cellfun(@(x) x' ,YTest,'UniformOutput',false);
+
+q=cat(1,YTest_T{:});
+e=cat(1,vys_bin_T{:});
+
+similarity = dice(q>0,e>0)
+
+
