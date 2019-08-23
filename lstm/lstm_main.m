@@ -11,7 +11,7 @@ load('train_test_ind.mat');
 drawnow;
 
 
-[data,datanan]=odstran_nany_hloupe(data);
+% [data,datanan]=odstran_nany_hloupe(data);
 
 XTrain=data(r_train);
 YTrain=labels(r_train);
@@ -29,23 +29,23 @@ w=numel(cat(1,YTrain{:}))/sum(cat(1,YTrain{:}));
 % XTest=cellfun(@(x) (x-repmat(mu,[size(x,1),1]))./repmat(sig,[size(x,1),1])  ,XTest,'UniformOutput',false);
 
 
-% maxv= max(cat(1,XTrain{:}),[],1);
-% minv= min(cat(1,XTrain{:}),[],1);
-% XTrain=cellfun(@(x)  normalize015(x,minv,maxv),XTrain,'UniformOutput',false);
-% XTest=cellfun(@(x) normalize015(x,minv,maxv),XTest,'UniformOutput',false);
-
-
 maxv= max(cat(1,XTrain{:}),[],1);
 minv= min(cat(1,XTrain{:}),[],1);
-XTrain=cellfun(@(x)  normalize11(x,minv,maxv),XTrain,'UniformOutput',false);
-XTest=cellfun(@(x) normalize11(x,minv,maxv),XTest,'UniformOutput',false);
+XTrain=cellfun(@(x)  normalize015(x,minv,maxv),XTrain,'UniformOutput',false);
+XTest=cellfun(@(x) normalize015(x,minv,maxv),XTest,'UniformOutput',false);
 
+
+% maxv= max(cat(1,XTrain{:}),[],1);
+% minv= min(cat(1,XTrain{:}),[],1);
+% XTrain=cellfun(@(x)  normalize11(x,minv,maxv),XTrain,'UniformOutput',false);
+% XTest=cellfun(@(x) normalize11(x,minv,maxv),XTest,'UniformOutput',false);
+% 
 
 
 % 
 % 
-% XTrain=cellfun(@(x) nany_na_nuly(x) ,XTrain,'UniformOutput',false);
-% XTest=cellfun(@(x) nany_na_nuly(x) ,XTest,'UniformOutput',false);
+XTrain=cellfun(@(x) nany_na_nuly(x) ,XTrain,'UniformOutput',false);
+XTest=cellfun(@(x) nany_na_nuly(x) ,XTest,'UniformOutput',false);
 
 
 drawnow;
@@ -81,8 +81,7 @@ for k=1:blocks
         fullyConnectedLayer(numFc2,'Name',['fc' num2str(k) '2'])
         reluLayer('Name',['r' num2str(k) '2'])
         dropoutLayer(0.5,'Name',['do' num2str(k) '2'])
-        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])
-        concatenationLayer(1,3,'Name',['cat' num2str(k) ''])];
+        fullyConnectedLayer(numFc1,'Name',['fc' num2str(k) '3'])];
     
 end
 layers = [...
@@ -116,12 +115,12 @@ layers = [...
     diceClassificationLayer('out')];
 
 layers=layerGraph(layers);
-layers=connectLayers(layers,'input','cat1/in2');
-layers=connectLayers(layers,'input','cat1/in3');
-for k=1:blocks-1
-    layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
-    layers=connectLayers(layers,'input',['cat' num2str(k+1) '/in3']);
-end
+% layers=connectLayers(layers,'input','cat1/in2');
+% layers=connectLayers(layers,'input','cat1/in3');
+% for k=1:blocks-1
+%     layers=connectLayers(layers,['cat' num2str(k) ''],['cat' num2str(k+1) '/in2']);
+%     layers=connectLayers(layers,'input',['cat' num2str(k+1) '/in3']);
+% end
 
 
 save_name=['cpt'];
