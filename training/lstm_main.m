@@ -1,7 +1,6 @@
 clc;clear all;close all force; 
 
 addpath('../../train_test_data2');
-addpath('../utils');
 
 load('data.mat');
 load('train_test_ind.mat');
@@ -47,18 +46,15 @@ YTest=cellfun(@(x) x' ,YTest,'UniformOutput',false);
 YTrain_c=cellfun(@(x) categorical(x) ,YTrain,'UniformOutput',false);
 YTest_c=cellfun(@(x) categorical(x) ,YTest,'UniformOutput',false);
 
-
+numResponses = 2;
 featureDimension = size(XTrain{1},1);
 
-numResponses = featureDimension;
+% LayerNorm(['ln' num2str(k)])
 
-
-
-
-numHiddenUnits = 200;
+numHiddenUnits = 300;
 numFc1=200;
 numFc2=100;
-blocks=6;
+blocks=12;
 layers = [sequenceInputLayer(featureDimension,'Name','input')];
 for k=1:blocks
     layers = [...
@@ -103,7 +99,7 @@ layers = [...
     
     fullyConnectedLayer(numResponses,'Name','fcfinal_final')
     softmaxLayer('Name','sm')
-    nanregression_layer('out')];
+    diceClassificationLayer('out')];
 
 layers=layerGraph(layers);
 layers=connectLayers(layers,'input','cat1/in2');
@@ -114,7 +110,7 @@ for k=1:blocks-1
 end
 
 
-save_name=['cpt_nan'];
+save_name=['cpt'];
 mkdir(save_name)
 
 batch=64;
@@ -129,7 +125,7 @@ options = trainingOptions('adam', ...
     'LearnRateSchedule','piecewise', ...
     'LearnRateDropPeriod',10, ...
     'LearnRateDropFactor',0.1, ...
-    'ValidationData',{XTest,YTest}, ...
+    'ValidationData',{XTest,YTest_c}, ...
     'ValidationFrequency',1000,...
     'MaxEpochs', 35, ...
     'MiniBatchSize', batch, ...
@@ -143,7 +139,7 @@ options = trainingOptions('adam', ...
 
 
 
-net = trainNetwork(XTrain,YTrain,layers,options);
+net = trainNetwork(XTrain,YTrain_c,layers,options);
 
 save(['model.mat'],'net')
 load(['model.mat'])
@@ -158,6 +154,27 @@ for k=1:length(XTest)
 end
 
 vys=cellfun(@(x) x(2,:),vys,'UniformOutput',false);
+
+
+
+x0=[0.5];
+A=[];
+b=[];
+Aeq=[];
+beq=[];
+lb=[0];
+ub=[1];
+nonlcon=[];
+x = ga(@(x) pred(x,YTest,vys),1,A,b,Aeq,beq,lb,ub,nonlcon,optimoptions('ga','Display','iter','MaxGenerations',25));
+
+
+normalized_observed_utility=-pred(x,YTest,vys)
+
+
+save('x.mat','x')
+
+
+save('minv_maxv.mat','minv','maxv')
 
 
 

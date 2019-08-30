@@ -1,6 +1,5 @@
 function [score, label] = get_sepsis_score(data, model)
-    addpath('lstm')
-    addpath('utils')
+    addpath('training')
     net=model{1};
     x=model{2};
     minq=model{3};

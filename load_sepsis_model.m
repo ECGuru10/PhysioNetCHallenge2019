@@ -1,5 +1,5 @@
 function model = load_sepsis_model()
-    addpath('lstm')
+    addpath('training')
     load('model.mat')
     load('x.mat')
     m=load('minv_maxv.mat');
